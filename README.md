@@ -1,1 +1,1 @@
-# BordgameEvenings.Node
+# BoardgameEvenings.Node

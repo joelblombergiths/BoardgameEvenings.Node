@@ -1,0 +1,27 @@
+{
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite": "^4.1.2",
+    "sqlite3": "^5.1.4",
+    "swagger-autogen": "^2.22.0",
+    "swagger-ui-express": "^4.6.0"
+  },
+  "name": "boardgameevenings.node",
+  "version": "1.0.0",
+  "description": "Create and join fun gaming sessions with kind nerds",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joelblombergiths/BoardgameEvenings.Node.git"
+  },
+  "keywords": ["Boardgames","Nerds", "Social"],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/joelblombergiths/BoardgameEvenings.Node/issues"
+  },
+  "homepage": "https://github.com/joelblombergiths/BoardgameEvenings.Node#readme"
+}
