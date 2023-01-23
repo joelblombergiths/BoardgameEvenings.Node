@@ -1,0 +1,46 @@
+main {
+    padding-top: 50px;    
+}
+
+button {
+    width: 100%;
+}
+
+.error {
+    color: red;
+}
+
+.success {
+    color: greenyellow;
+}
+
+#menu {
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    top: 0;
+    left: 0;
+    background-color: black;
+    list-style-type: none;
+}
+
+#menu li {
+    float: left;
+}
+
+#menu a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 6px;
+    text-decoration: none;
+}
+#menu a:hover {
+    background-color: #0d4b9286;
+}
+
+#menu a.selected {
+    background-color: #0D4C92;
+}
