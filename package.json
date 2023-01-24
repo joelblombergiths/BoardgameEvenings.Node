@@ -13,12 +13,13 @@
   "scripts": {
     "start": "node server.js"
   },
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/joelblombergiths/BoardgameEvenings.Node.git"
   },
   "keywords": ["Boardgames","Nerds", "Social"],
-  "author": "",
+  "author": "Joel Blomberg",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/joelblombergiths/BoardgameEvenings.Node/issues"

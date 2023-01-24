@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">    
-    <title>Boardgame Evenings</title>
+    <title>Attend</title>
 </head>
 <body>
     <nav>
@@ -16,15 +16,35 @@
         </ul>
     </nav>
     <main>
-        <table id="events" class="fancyTable">
+        <h1>I solemnly swear that I am up to no good</h1>
+        <table id="events">
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Date</th>
+                    <th>Vote for a game</th>
                 </tr>
             </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <input type="text" name="Name" id="name">
+                    </td>
+                    <td>
+                        <select name="Games" id="games">
+                            <option>Any</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <input type="button" value="Attend" id="attendButton">
+                    </td>
+                </tr>
+            </tbody>
         </table>   
+        
+        
     </main>
-    <script src="event.js"></script>
+    <script src="attend.js"></script>
 </body>
 </html>
