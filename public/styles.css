@@ -6,7 +6,7 @@ main {
 table {
     border-collapse: collapse;
     margin: 25px 25px;
-    font-size: 1.5em;
+    /* font-size: 1.5em; */
     min-width: 400px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
@@ -19,7 +19,15 @@ thead tr {
 
 tbody tr {
     border-bottom: 1px solid #dddddd;
+}
+
+.fancyTable tr {
     cursor: pointer;
+}
+
+body {
+    background-color: black;
+    color: white;
 }
 
 
@@ -37,11 +45,15 @@ tbody tr {
 }
 
 th, td {
-    padding: 5px 50px;
+    padding: 5px 10px;
     text-align: center;
 }
 
-#attendButton {
+h3 {
+    padding-left: 20px;
+}
+
+.fancyButton {
     appearance: none;
     background-color: #FCFCFD;
     border-radius: 4px;
@@ -99,4 +111,8 @@ th, td {
 
 #menu a.selected {
     background-color: #693250;
+}
+
+#result {
+    display: none;
 }

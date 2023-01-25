@@ -22,9 +22,9 @@ async function openDb()
 const db = await openDb()
 console.log(`Database connected ${db.config.filename}`)
 
-app.get('/')
-
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
+app.get('/')
 
 app.get('/events', async (req, res) => {
     try
