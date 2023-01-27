@@ -4,12 +4,12 @@ const eventTable = document.getElementById('events')
 
 const GetEvents = async () => {
     const res = await fetch(`${baseApiUri}/events`)
-    console.log(res)
-    
+        
     if(res.status == 200)
     {
         const data = await res.json()
         const tbody = document.createElement('tbody')
+
         data.forEach(event => {
             const row = document.createElement("tr")
             row.onclick = () => {location.assign(`event.html?id=${event.ID}`)}
@@ -39,5 +39,4 @@ const GetEvents = async () => {
         eventTable.appendChild(row)
     }
 }
-
 GetEvents()

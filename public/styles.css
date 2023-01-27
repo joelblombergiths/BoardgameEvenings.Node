@@ -25,12 +25,6 @@ tbody tr {
     cursor: pointer;
 }
 
-body {
-    background-color: black;
-    color: white;
-}
-
-
 .fancyTable tbody tr:nth-of-type(even) {
     background-color: #f3f3f3;
 }

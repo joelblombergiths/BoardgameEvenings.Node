@@ -1,4 +1,5 @@
 const PORT = process.env.PORT || 3000
+const databasePath = './db/database.db'
 
 import express from 'express'
 const app = express()
@@ -12,14 +13,46 @@ import swaggerFile from './swagger.json' assert { type: 'json' }
 import sqlite3 from 'sqlite3'
 import {open} from 'sqlite'
 
+import {existsSync} from 'fs'
+
+const dbExists = existsSync(databasePath)
+
 async function openDb()
 {
     return open({
-        filename: './db/database.db',
+        filename: databasePath,
         driver: sqlite3.Database
     })
 }
+
+const initEventTablesql = 'CREATE TABLE "Events" ("ID" INTEGER NOT NULL UNIQUE, "Date" TEXT NOT NULL CHECK(datetime("Date") IS NOT NULL),"Name" TEXT, PRIMARY KEY("ID" AUTOINCREMENT))'
+const initAttendeeTableSql = 'CREATE TABLE "Attendees" ("ID" INTEGER NOT NULL UNIQUE, "EventID" INTEGER NOT NULL, "Name" TEXT NOT NULL, PRIMARY KEY("ID" AUTOINCREMENT))'
+const initVotesTableSql = 'CREATE TABLE "GameVotes" ("ID" INTEGER NOT NULL, "EventID" INTEGER NOT NULL, "AttendeeID" INTEGER NOT NULL, "Vote" TEXT NOT NULL,PRIMARY KEY("ID","EventID","AttendeeID"))'
+
+const allEventsSql = 'SELECT * FROM Events'
+const checkIfExistsSql = 'SELECT * FROM Events WHERE ID = ?'
+const createEventSql = 'INSERT INTO Events(Date, Name) VALUES(?,?)'
+const getEventDetailSql = 'SELECT e.ID, e.Name, e.Date, IFNULL(gv.Vote, \'Any\') AS TopVote FROM Events e OUTER LEFT JOIN GameVotes gv ON gv.EventID = e.ID WHERE e.ID = ? GROUP BY gv.Vote ORDER BY count(*) DESC LIMIT 1'
+const updateEventSql = 'UPDATE Events SET Name = ?, Date = ? WHERE ID = ?'
+const deleteEventsql = 'DELETE FROM Events WHERE ID = ?'
+const addAttendeeSql = 'INSERT INTO Attendees(EventId,Name) VALUES(?,?)'
+const addVoteSql = 'INSERT INTO GameVotes(ID,EventID,AttendeeID,Vote) VALUES((SELECT IFNULL(MAX(ID) + 1, 1) FROM GameVotes ORDER BY ID DESC),?,?,?)'    
+const deleteAttendeeSql = 'DELETE FROM Attendees WHERE EventId = ? AND ID = ?'
+const deleteVoteSql = 'DELETE FROM GameVotes WHERE EventId = ? AND AttendeeID = ?'
+
 const db = await openDb()
+
+const initDb = async () => {
+    db.run(initEventTablesql)
+    db.run(initAttendeeTableSql)
+    await db.run(initVotesTableSql)
+}
+
+if(!dbExists)
+{
+    initDb()
+}
+
 console.log(`Database connected ${db.config.filename}`)
 
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile));
@@ -29,7 +62,7 @@ app.get('/')
 app.get('/events', async (req, res) => {
     try
     {
-        const result = await db.all('SELECT * FROM Events')        
+        const result = await db.all(allEventsSql)        
         if(result.length)
         {            
             return res.json(result)
@@ -45,13 +78,11 @@ app.get('/events', async (req, res) => {
 })
 
 app.get('/event/:id', async (req, res) => {
-    const eventId = req.params.id
-    const sql = 'SELECT e.ID, e.Name, e.Date, IFNULL(gv.Vote, \'Any\') AS TopVote FROM Events e OUTER LEFT JOIN GameVotes gv ON gv.EventID = e.ID WHERE e.ID = ? GROUP BY gv.Vote ORDER BY count(*) DESC LIMIT 1'
-
     try
     {
-        const result = await db.get(sql, eventId)
+        const eventId = req.params.id
 
+        const result = await db.get(getEventDetailSql, eventId)
         if(result)
         {
             return res.json(result)            
@@ -67,22 +98,19 @@ app.get('/event/:id', async (req, res) => {
 })
 
 app.post('/event', async (req, res) => {
-    const data = req.body
-    const getSql = 'SELECT * FROM Events WHERE ID = ?'
-    const insertSql = 'INSERT INTO Events(Date, Name) VALUES(?,?)'
-
     try
     {
-        const found = await db.get(getSql, data.id)
+        const {id, name, date} = req.body
 
+        const found = await db.get(checkIfExistsSql, id)
         if(!found)
         {
-            await db.run(insertSql, data.date, data.name)
-            console.log(`Event ${data.name} on ${data.date} created `)
+            await db.run(createEventSql, date, name)
+            console.log(`Event ${name} on ${date} created `)
             return res.send()
         }
 
-        res.status(400).send(`Event with ID ${data.id} already exists`)
+        res.status(400).send(`Event with ID ${id} already exists`)
     }
     catch(err) 
     {
@@ -92,18 +120,15 @@ app.post('/event', async (req, res) => {
 })
 
 app.put('/event/:id', async (req, res) => {
-    const eventId = req.params.id
-    const event = req.body
-    const getSql = 'SELECT * FROM Events WHERE ID = ?'
-    const updateSql = 'UPDATE Events SET Name = ?, Date = ? WHERE ID = ?'
-    
     try
     {
-        const found = await db.get(getSql, eventId)
+        const eventId = req.params.id
+        const {name, date} = req.body
 
+        const found = await db.get(checkIfExistsSql, eventId)
         if(found)
         {
-            await db.run(updateSql, event.name, event.date, eventId)
+            await db.run(updateEventSql, name, date, eventId)
             return res.send()
         }
 
@@ -117,13 +142,11 @@ app.put('/event/:id', async (req, res) => {
 })
 
 app.delete('/event/:id', async (req, res) => {
-    const eventId = req.params.id
-    const sql = 'DELETE FROM Events WHERE ID = ?'    
-
     try
     {
-        const result = await db.run(sql, eventId)
+        const eventId = req.params.id
 
+        const result = await db.run(deleteEventsql, eventId)
         if(result.changes > 0)
         {
             console.log(`Removed event with ID ${eventId}`)
@@ -140,19 +163,17 @@ app.delete('/event/:id', async (req, res) => {
 })
 
 app.post('/event/:id/attend', async (req, res) => {
-    const eventId = req.params.id
-    const data = req.body
-    const attendeeSql = 'INSERT INTO Attendees(EventId,Name) VALUES(?,?)'
-    const voteSql = 'INSERT INTO GameVotes(ID,EventID,AttendeeID,Vote) VALUES((SELECT IFNULL(MAX(ID) + 1, 1) FROM GameVotes ORDER BY ID DESC),?,?,?)'    
-
     try
     {
-        const attendeeResult = await db.run(attendeeSql, eventId, data.name)
+        const eventId = req.params.id
+        const {name, vote} = req.body
+
+        const attendeeResult = await db.run(addAttendeeSql, eventId, name)
         const attendeeId = attendeeResult.lastID
         
-        await db.run(voteSql, eventId, attendeeId, data.vote)
+        await db.run(addVoteSql, eventId, attendeeId, vote)
 
-        console.log(`${data.name} will attend event with ID ${eventId} and voted for ${data.vote}`)
+        console.log(`${name} will attend event with ID ${eventId} and voted for ${vote}`)
         res.send()
     }
     catch(err)
@@ -163,15 +184,13 @@ app.post('/event/:id/attend', async (req, res) => {
 })
 
 app.delete('/event/:eventid/attend/:attendeeid', async (req, res) => {
-    const eventId = req.params.eventid
-    const attendeeId = req.params.attendeeid
-    const attendeeSql = 'DELETE FROM Attendees WHERE EventId = ? AND ID = ?'
-    const voteSql = 'DELETE FROM GameVotes WHERE EventId = ? AND AttendeeID = ?'
-
     try
     {
-        db.run(attendeeSql, eventId, attendeeId)
-        await db.run(voteSql, eventId, attendeeId)
+        const eventId = req.params.eventid
+        const attendeeId = req.params.attendeeid
+        
+        db.run(deleteAttendeeSql, eventId, attendeeId)
+        await db.run(deleteVoteSql, eventId, attendeeId)
 
         console.log(`Removed Attendee ID ${attendeeId} from event ${eventId}`)
         res.send()

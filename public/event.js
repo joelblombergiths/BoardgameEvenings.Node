@@ -1,11 +1,3 @@
-const baseApiUri = 'http://localhost:3000'
-
-const eventid = (new URLSearchParams(window.location.search)).get('id')
-if(!eventid) 
-{
-    location.assign('index.html')
-}
-
 const nameDisplay = document.getElementById('eventName')
 const dateDisplay = document.getElementById('eventDate')
 const gameDisplay = document.getElementById('eventGame')
@@ -15,11 +7,25 @@ const gamesList = document.getElementById('game')
 const attendButton = document.getElementById('attendButton')
 const resultText = document.getElementById('result')
 
+const baseApiUri = 'http://localhost:3000'
+
+const eventid = (new URLSearchParams(window.location.search)).get('id')
+if(!eventid) 
+{
+    location.assign('index.html')
+}
+
 async function getEventInfo()
 {
     const response = await fetch(`${baseApiUri}/event/${eventid}`)
+    console.log(response)
+    if(!response.ok)
+    {
+        location.assign('index.html')
+    }
+    
     const data = await response.json()
-    console.log(data)
+    
     nameDisplay.innerText = data.Name
     dateDisplay.innerText = data.Date
     gameDisplay.innerText = data.TopVote
