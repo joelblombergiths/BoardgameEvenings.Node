@@ -11,7 +11,8 @@
   "description": "Create and join fun gaming sessions with kind nerds",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "update": "node swaggerupdate.js"
   },
   "type": "module",
   "repository": {

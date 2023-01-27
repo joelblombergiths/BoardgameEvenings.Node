@@ -8,22 +8,11 @@ app.use(express.static('public'))
 app.use(express.json())
 
 import swaggerUi from 'swagger-ui-express'
-import swaggerFile from './swagger.json' assert { type: 'json' }
 
 import sqlite3 from 'sqlite3'
 import {open} from 'sqlite'
 
-import {existsSync} from 'fs'
-
-const dbExists = existsSync(databasePath)
-
-async function openDb()
-{
-    return open({
-        filename: databasePath,
-        driver: sqlite3.Database
-    })
-}
+import {readFileSync, existsSync} from 'fs'
 
 const initEventTablesql = 'CREATE TABLE "Events" ("ID" INTEGER NOT NULL UNIQUE, "Date" TEXT NOT NULL CHECK(datetime("Date") IS NOT NULL),"Name" TEXT, PRIMARY KEY("ID" AUTOINCREMENT))'
 const initAttendeeTableSql = 'CREATE TABLE "Attendees" ("ID" INTEGER NOT NULL UNIQUE, "EventID" INTEGER NOT NULL, "Name" TEXT NOT NULL, PRIMARY KEY("ID" AUTOINCREMENT))'
@@ -40,21 +29,31 @@ const addVoteSql = 'INSERT INTO GameVotes(ID,EventID,AttendeeID,Vote) VALUES((SE
 const deleteAttendeeSql = 'DELETE FROM Attendees WHERE EventId = ? AND ID = ?'
 const deleteVoteSql = 'DELETE FROM GameVotes WHERE EventId = ? AND AttendeeID = ?'
 
-const db = await openDb()
 
-const initDb = async () => {
-    db.run(initEventTablesql)
-    db.run(initAttendeeTableSql)
-    await db.run(initVotesTableSql)
+const dbExists = existsSync(databasePath)
+
+const dbconf = {
+    filename: databasePath,
+    driver: sqlite3.Database
 }
 
-if(!dbExists)
-{
-    initDb()
-}
+const db = open(dbconf)
+    .then(database => {    
+        if(!dbExists)
+        {
+            (async () => {
+                console.log('Initializing DB')
+                
+                database.run(initEventTablesql)
+                database.run(initAttendeeTableSql)
+                await database.run(initVotesTableSql)
+            })()
+        }
+        console.log(`Database connected ${database.config.filename}`)
+        return database
+    })
 
-console.log(`Database connected ${db.config.filename}`)
-
+const swaggerFile = JSON.parse(readFileSync('./swagger.json'))
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 app.get('/')

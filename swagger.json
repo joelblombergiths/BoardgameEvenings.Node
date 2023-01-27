@@ -143,10 +143,10 @@
                   "id": {
                     "example": "any"
                   },
-                  "date": {
+                  "name": {
                     "example": "any"
                   },
-                  "name": {
+                  "date": {
                     "example": "any"
                   }
                 }

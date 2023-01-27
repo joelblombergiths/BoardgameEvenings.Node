@@ -5,8 +5,14 @@ const doc = {
         title: 'Boardgame Evenings API',
         description: 'Create and join fun gaming sessions with kind nerds'
     },
-    host: 'localhost:3000',
-    schemes: ['http']
+    servers: [
+        {
+            url: "https://iths-bge.azurewebsites.net/"
+        },
+        {
+            url: "http://localhost:3000/"
+        }
+    ],
 }
-    
+
 swaggerAutogen({openapi: '3.0.0'})('./swagger.json', ['./server.js'], doc)
