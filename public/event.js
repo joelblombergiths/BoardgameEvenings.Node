@@ -7,9 +7,6 @@ const gamesList = document.getElementById('game')
 const attendButton = document.getElementById('attendButton')
 const resultText = document.getElementById('result')
 
-// const baseApiUri = 'http://localhost:3000'
-const baseApiUri = 'https://iths-bge.azurewebsites.net/'
-
 const eventid = (new URLSearchParams(window.location.search)).get('id')
 if(!eventid) 
 {
@@ -18,7 +15,7 @@ if(!eventid)
 
 async function getEventInfo()
 {
-    const response = await fetch(`${baseApiUri}/event/${eventid}`)
+    const response = await fetch(`/event/${eventid}`)
     console.log(response)
     if(!response.ok)
     {
@@ -64,7 +61,7 @@ attendButton.addEventListener('click', async () => {
         body: JSON.stringify(data)
     }
 
-    const res = await fetch(`${baseApiUri}/event/${eventid}/attend`, req)
+    const res = await fetch(`/event/${eventid}/attend`, req)
     attendButton.style.display = 'none'
     resultText.style.display = 'inline'
 

@@ -1,6 +1,3 @@
-// const baseApiUri = 'http://localhost:3000'
-const baseApiUri = 'https://iths-bge.azurewebsites.net/'
-
 const createButton = document.getElementById('createButton')
 const resultText = document.getElementById('result')
 const nameInput = document.getElementById('name')
@@ -20,7 +17,7 @@ createButton.addEventListener('click', async () => {
         body: JSON.stringify(data)
     }
 
-    const res = await fetch(`${baseApiUri}/event`, req)
+    const res = await fetch('/event', req)
     createButton.style.display = 'none'
     resultText.style.display = 'inline'
 

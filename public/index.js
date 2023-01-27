@@ -1,16 +1,13 @@
-// const baseApiUri = 'http://localhost:3000'
-const baseApiUri = 'https://iths-bge.azurewebsites.net/'
-
 const eventTable = document.getElementById('events')
 
 const GetEvents = async () => {
-    const res = await fetch(`${baseApiUri}/events`)
+    const res = await fetch('/events')
         
     if(res.status == 200)
     {
-        const data = await res.json()
         const tbody = document.createElement('tbody')
-
+        
+        const data = await res.json()
         data.forEach(event => {
             const row = document.createElement("tr")
             row.onclick = () => {location.assign(`event.html?id=${event.ID}`)}
