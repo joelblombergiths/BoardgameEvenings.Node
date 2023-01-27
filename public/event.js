@@ -7,7 +7,8 @@ const gamesList = document.getElementById('game')
 const attendButton = document.getElementById('attendButton')
 const resultText = document.getElementById('result')
 
-const baseApiUri = 'http://localhost:3000'
+// const baseApiUri = 'http://localhost:3000'
+const baseApiUri = 'https://iths-bge.azurewebsites.net/'
 
 const eventid = (new URLSearchParams(window.location.search)).get('id')
 if(!eventid) 
@@ -23,7 +24,7 @@ async function getEventInfo()
     {
         location.assign('index.html')
     }
-    
+
     const data = await response.json()
     
     nameDisplay.innerText = data.Name

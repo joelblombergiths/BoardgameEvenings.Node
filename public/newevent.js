@@ -1,4 +1,5 @@
-const baseApiUri = 'http://localhost:3000'
+// const baseApiUri = 'http://localhost:3000'
+const baseApiUri = 'https://iths-bge.azurewebsites.net/'
 
 const createButton = document.getElementById('createButton')
 const resultText = document.getElementById('result')

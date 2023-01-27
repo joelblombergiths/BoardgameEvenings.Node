@@ -7,6 +7,9 @@
   },
   "servers": [
     {
+      "url": "https://iths-bge.azurewebsites.net/"
+    },
+    {
       "url": "http://localhost:3000/"
     }
   ],
