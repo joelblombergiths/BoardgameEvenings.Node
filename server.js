@@ -37,7 +37,8 @@ const dbconf = {
     driver: sqlite3.Database
 }
 
-const db = open(dbconf)
+var db
+open(dbconf)
     .then(database => {    
         if(!dbExists)
         {
@@ -50,7 +51,7 @@ const db = open(dbconf)
             })()
         }
         console.log(`Database connected ${database.config.filename}`)
-        return database
+        db = database
     })
 
 const swaggerFile = JSON.parse(readFileSync('./swagger.json'))
