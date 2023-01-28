@@ -1,6 +1,8 @@
 const nameDisplay = document.getElementById('eventName')
 const dateDisplay = document.getElementById('eventDate')
 const gameDisplay = document.getElementById('eventGame')
+const editIcon = document.getElementById('editIcon')
+const deleteIcon = document.getElementById('deleteIcon')
 
 const nameInput = document.getElementById('name')
 const gamesList = document.getElementById('game')
@@ -24,7 +26,31 @@ const loadEventInfo = async () => {
     
     nameDisplay.innerText = data.Name
     dateDisplay.innerText = data.Date
-    gameDisplay.innerText = data.TopVote
+    gameDisplay.innerText = data.TopVote    
+    editIcon.href = `/editevent.html?id=${eventid}`
+    deleteIcon.href = '#'
+    deleteIcon.addEventListener('click', async () => {
+        const confirmDelete = confirm('Are you sure you want to delete this event?')
+        if(confirmDelete)
+        {
+            const req = {
+                method : 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+
+            const result = await fetch(`/event/${eventid}`, req)
+            if(result.ok)
+            {
+                location.assign('index.html')
+            }
+            else
+            {
+                console.log(result)
+            }
+        }
+    })
 }
 loadEventInfo()
 

@@ -41,11 +41,12 @@ open(dbconf)
     })
 
 const swaggerFile = JSON.parse(readFileSync('./swagger.json'))
-app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile));
+app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile, {explorer: false, customCss: readFileSync('./swagger.css')}));
 
 app.get('/')
 
 app.get('/events', async (req, res) => {
+    // #swagger.tags = ['Events']
     try
     {
         const result = await db.all(queries.allEventsSql)        
@@ -64,6 +65,7 @@ app.get('/events', async (req, res) => {
 })
 
 app.get('/event/:id', async (req, res) => {
+    // #swagger.tags = ['Events']
     try
     {
         const eventId = req.params.id
@@ -84,6 +86,7 @@ app.get('/event/:id', async (req, res) => {
 })
 
 app.post('/event', async (req, res) => {
+    // #swagger.tags = ['Events']
     try
     {
         const {id, name, date} = req.body
@@ -106,6 +109,7 @@ app.post('/event', async (req, res) => {
 })
 
 app.put('/event/:id', async (req, res) => {
+    // #swagger.tags = ['Events']
     try
     {
         const eventId = req.params.id
@@ -128,6 +132,7 @@ app.put('/event/:id', async (req, res) => {
 })
 
 app.delete('/event/:id', async (req, res) => {
+    // #swagger.tags = ['Events']
     try
     {
         const eventId = req.params.id
@@ -148,10 +153,11 @@ app.delete('/event/:id', async (req, res) => {
     }
 })
 
-app.post('/event/:id/attend', async (req, res) => {
+app.post('/event/:eventid/attend', async (req, res) => {
+    // #swagger.tags = ['Attendees']
     try
     {
-        const eventId = req.params.id
+        const eventId = req.params.eventid
         const {name, vote} = req.body
 
         const attendeeResult = await db.run(queries.addAttendeeSql, eventId, name)
@@ -170,6 +176,7 @@ app.post('/event/:id/attend', async (req, res) => {
 })
 
 app.delete('/event/:eventid/attend/:attendeeid', async (req, res) => {
+    // #swagger.tags = ['Attendees']
     try
     {
         const eventId = req.params.eventid
