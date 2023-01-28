@@ -19,6 +19,27 @@ tbody tr {
     border-bottom: 1px solid #dddddd;
 }
 
+th, td {
+    padding: 5px 10px;
+    text-align: center;
+}
+
+h3 {
+    padding-left: 25px;
+}
+
+a:link {
+    color: black;    
+}
+
+a:visited {
+    color: black;    
+}
+
+a:hover {
+    color: #693250;    
+}
+
 .fancyTable tbody tr {
     cursor: pointer;
 }
@@ -37,14 +58,6 @@ tbody tr {
     font-weight: bold;
 }
 
-th, td {
-    padding: 5px 10px;
-    text-align: center;
-}
-
-h3 {
-    padding-left: 25px;
-}
 
 .fancyButton {
     appearance: none;

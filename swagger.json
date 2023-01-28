@@ -16,6 +16,9 @@
   "paths": {
     "/events": {
       "get": {
+        "tags": [
+          "Events"
+        ],
         "description": "",
         "parameters": [],
         "responses": {
@@ -33,6 +36,9 @@
     },
     "/event/{id}": {
       "get": {
+        "tags": [
+          "Events"
+        ],
         "description": "",
         "parameters": [
           {
@@ -57,6 +63,9 @@
         }
       },
       "put": {
+        "tags": [
+          "Events"
+        ],
         "description": "",
         "parameters": [
           {
@@ -98,6 +107,9 @@
         }
       },
       "delete": {
+        "tags": [
+          "Events"
+        ],
         "description": "",
         "parameters": [
           {
@@ -124,6 +136,9 @@
     },
     "/event": {
       "post": {
+        "tags": [
+          "Events"
+        ],
         "description": "",
         "parameters": [],
         "responses": {
@@ -156,12 +171,15 @@
         }
       }
     },
-    "/event/{id}/attend": {
+    "/event/{eventid}/attend": {
       "post": {
+        "tags": [
+          "Attendees"
+        ],
         "description": "",
         "parameters": [
           {
-            "name": "id",
+            "name": "eventid",
             "in": "path",
             "required": true,
             "schema": {
@@ -198,6 +216,9 @@
     },
     "/event/{eventid}/attend/{attendeeid}": {
       "delete": {
+        "tags": [
+          "Attendees"
+        ],
         "description": "",
         "parameters": [
           {

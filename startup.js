@@ -15,4 +15,6 @@ const doc = {
     ]
 }
 
-swaggerAutogen({openapi: '3.0.0'})('./swagger.json', ['./server.js'], doc)
+swaggerAutogen({openapi: '3.0.0'})('./swagger.json', ['./server.js'], doc).then(async () => {
+    await import('./server.js')
+})
