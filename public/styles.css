@@ -6,8 +6,6 @@ main {
 table {
     border-collapse: collapse;
     margin: 25px 25px;
-    /* font-size: 1.5em; */
-    min-width: 400px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
@@ -21,7 +19,7 @@ tbody tr {
     border-bottom: 1px solid #dddddd;
 }
 
-.fancyTable tr {
+.fancyTable tbody tr {
     cursor: pointer;
 }
 
@@ -30,12 +28,13 @@ tbody tr {
 }
 
 .fancyTable tbody tr:last-of-type {
-    border-bottom: 2px solid #009879;
+    border-bottom: 2px solid #693250;
 }
 
 .fancyTable tbody tr:hover {
     background-color: darkgray;
     color: white;
+    font-weight: bold;
 }
 
 th, td {
@@ -44,7 +43,7 @@ th, td {
 }
 
 h3 {
-    padding-left: 20px;
+    padding-left: 25px;
 }
 
 .fancyButton {
@@ -62,16 +61,16 @@ h3 {
     font-size: 18px;
 }
 
-#attendButton:focus {
+.fancyButton:focus {
     box-shadow: #D6D6E7 0 0 0 1.5px inset, rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
 }
 
-#attendButton:hover {
+.fancyButton:hover {
     box-shadow: rgba(45, 35, 66, 0.4) 0 4px 8px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
     transform: translateY(-2px);
 }
 
-#attendButton:active {
+.fancyButton:active {
     box-shadow: #D6D6E7 0 3px 7px inset;
     transform: translateY(2px);
 }

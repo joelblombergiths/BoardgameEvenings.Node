@@ -7,7 +7,6 @@
     ],
     "verbose": true,
     "watch": [
-        "/server.js"
-    ],
-    "ext": "js json"
+        "*.js"
+    ]
 }

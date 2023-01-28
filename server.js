@@ -14,21 +14,7 @@ import {open} from 'sqlite'
 
 import {readFileSync, existsSync} from 'fs'
 
-const initEventTablesql = 'CREATE TABLE "Events" ("ID" INTEGER NOT NULL UNIQUE, "Date" TEXT NOT NULL CHECK(datetime("Date") IS NOT NULL),"Name" TEXT, PRIMARY KEY("ID" AUTOINCREMENT))'
-const initAttendeeTableSql = 'CREATE TABLE "Attendees" ("ID" INTEGER NOT NULL UNIQUE, "EventID" INTEGER NOT NULL, "Name" TEXT NOT NULL, PRIMARY KEY("ID" AUTOINCREMENT))'
-const initVotesTableSql = 'CREATE TABLE "GameVotes" ("ID" INTEGER NOT NULL, "EventID" INTEGER NOT NULL, "AttendeeID" INTEGER NOT NULL, "Vote" TEXT NOT NULL,PRIMARY KEY("ID","EventID","AttendeeID"))'
-
-const allEventsSql = 'SELECT * FROM Events'
-const checkIfExistsSql = 'SELECT * FROM Events WHERE ID = ?'
-const createEventSql = 'INSERT INTO Events(Date, Name) VALUES(?,?)'
-const getEventDetailSql = 'SELECT e.ID, e.Name, e.Date, IFNULL(gv.Vote, \'Any\') AS TopVote FROM Events e OUTER LEFT JOIN GameVotes gv ON gv.EventID = e.ID WHERE e.ID = ? GROUP BY gv.Vote ORDER BY count(*) DESC LIMIT 1'
-const updateEventSql = 'UPDATE Events SET Name = ?, Date = ? WHERE ID = ?'
-const deleteEventsql = 'DELETE FROM Events WHERE ID = ?'
-const addAttendeeSql = 'INSERT INTO Attendees(EventId,Name) VALUES(?,?)'
-const addVoteSql = 'INSERT INTO GameVotes(ID,EventID,AttendeeID,Vote) VALUES((SELECT IFNULL(MAX(ID) + 1, 1) FROM GameVotes ORDER BY ID DESC),?,?,?)'    
-const deleteAttendeeSql = 'DELETE FROM Attendees WHERE EventId = ? AND ID = ?'
-const deleteVoteSql = 'DELETE FROM GameVotes WHERE EventId = ? AND AttendeeID = ?'
-
+import {queries} from './sql.js'
 
 const dbExists = existsSync(databasePath)
 
@@ -45,9 +31,9 @@ open(dbconf)
             (async () => {
                 console.log('Initializing DB')
                 
-                database.run(initEventTablesql)
-                database.run(initAttendeeTableSql)
-                await database.run(initVotesTableSql)
+                database.run(queries.initEventTablesql)
+                database.run(queries.initAttendeeTableSql)
+                await database.run(queries.initVotesTableSql)
             })()
         }
         console.log(`Database connected ${database.config.filename}`)
@@ -62,7 +48,7 @@ app.get('/')
 app.get('/events', async (req, res) => {
     try
     {
-        const result = await db.all(allEventsSql)        
+        const result = await db.all(queries.allEventsSql)        
         if(result.length)
         {            
             return res.json(result)
@@ -82,7 +68,7 @@ app.get('/event/:id', async (req, res) => {
     {
         const eventId = req.params.id
 
-        const result = await db.get(getEventDetailSql, eventId)
+        const result = await db.get(queries.getEventDetailSql, eventId)
         if(result)
         {
             return res.json(result)            
@@ -102,10 +88,10 @@ app.post('/event', async (req, res) => {
     {
         const {id, name, date} = req.body
 
-        const found = await db.get(checkIfExistsSql, id)
+        const found = await db.get(queries.checkIfExistsSql, id)
         if(!found)
         {
-            await db.run(createEventSql, date, name)
+            await db.run(queries.createEventSql, date, name)
             console.log(`Event ${name} on ${date} created `)
             return res.send()
         }
@@ -125,10 +111,10 @@ app.put('/event/:id', async (req, res) => {
         const eventId = req.params.id
         const {name, date} = req.body
 
-        const found = await db.get(checkIfExistsSql, eventId)
+        const found = await db.get(queries.checkIfExistsSql, eventId)
         if(found)
         {
-            await db.run(updateEventSql, name, date, eventId)
+            await db.run(queries.updateEventSql, name, date, eventId)
             return res.send()
         }
 
@@ -146,7 +132,7 @@ app.delete('/event/:id', async (req, res) => {
     {
         const eventId = req.params.id
 
-        const result = await db.run(deleteEventsql, eventId)
+        const result = await db.run(queries.deleteEventsql, eventId)
         if(result.changes > 0)
         {
             console.log(`Removed event with ID ${eventId}`)
@@ -168,10 +154,10 @@ app.post('/event/:id/attend', async (req, res) => {
         const eventId = req.params.id
         const {name, vote} = req.body
 
-        const attendeeResult = await db.run(addAttendeeSql, eventId, name)
+        const attendeeResult = await db.run(queries.addAttendeeSql, eventId, name)
         const attendeeId = attendeeResult.lastID
         
-        await db.run(addVoteSql, eventId, attendeeId, vote)
+        await db.run(queries.addVoteSql, eventId, attendeeId, vote)
 
         console.log(`${name} will attend event with ID ${eventId} and voted for ${vote}`)
         res.send()
@@ -189,8 +175,8 @@ app.delete('/event/:eventid/attend/:attendeeid', async (req, res) => {
         const eventId = req.params.eventid
         const attendeeId = req.params.attendeeid
         
-        db.run(deleteAttendeeSql, eventId, attendeeId)
-        await db.run(deleteVoteSql, eventId, attendeeId)
+        db.run(queries.deleteAttendeeSql, eventId, attendeeId)
+        await db.run(queries.deleteVoteSql, eventId, attendeeId)
 
         console.log(`Removed Attendee ID ${attendeeId} from event ${eventId}`)
         res.send()
@@ -205,3 +191,4 @@ app.delete('/event/:eventid/attend/:attendeeid', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Listening to port ${PORT}`)
 })
+

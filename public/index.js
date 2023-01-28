@@ -10,15 +10,14 @@ const GetEvents = async () => {
         const data = await res.json()
         data.forEach(event => {
             const row = document.createElement("tr")
+            row.title = "Click to join event"
             row.onclick = () => {location.assign(`event.html?id=${event.ID}`)}
-            
+
             const nameCol = document.createElement("td")
-            nameCol.title = "Click to join event"
             nameCol.innerText = event.Name
             row.appendChild(nameCol)        
             
-            const dateCol = document.createElement("td")
-            dateCol.title = "Click to join event"
+            const dateCol = document.createElement("td")            
             dateCol.innerText = event.Date
             row.appendChild(dateCol)        
 
