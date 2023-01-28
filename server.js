@@ -12,9 +12,9 @@ import swaggerUi from 'swagger-ui-express'
 import sqlite3 from 'sqlite3'
 import {open} from 'sqlite'
 
-import {readFileSync, existsSync} from 'fs'
-
 import {queries} from './sql.js'
+
+import {readFileSync, existsSync} from 'fs'
 
 const dbExists = existsSync(databasePath)
 
@@ -191,4 +191,3 @@ app.delete('/event/:eventid/attend/:attendeeid', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Listening to port ${PORT}`)
 })
-
