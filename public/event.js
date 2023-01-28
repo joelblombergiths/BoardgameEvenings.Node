@@ -11,7 +11,6 @@ const eventid = (new URLSearchParams(window.location.search)).get('id')
 if(!eventid) 
 {
     location.assign('index.html')
-    return
 }
 
 const loadEventInfo = async () => {
@@ -19,7 +18,6 @@ const loadEventInfo = async () => {
     if(!response.ok)
     {
         location.assign('index.html')
-        return
     }
 
     const data = await response.json()
