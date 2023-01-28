@@ -12,7 +12,7 @@ const doc = {
         {
             url: "http://localhost:3000/"
         }
-    ],
+    ]
 }
 
 swaggerAutogen({openapi: '3.0.0'})('./swagger.json', ['./server.js'], doc)

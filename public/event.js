@@ -13,10 +13,8 @@ if(!eventid)
     location.assign('index.html')
 }
 
-async function getEventInfo()
-{
-    const response = await fetch(`/event/${eventid}`)
-    console.log(response)
+const loadEventInfo = async () => {
+    const response = await fetch(`/event/${eventid}`)    
     if(!response.ok)
     {
         location.assign('index.html')
@@ -28,12 +26,11 @@ async function getEventInfo()
     dateDisplay.innerText = data.Date
     gameDisplay.innerText = data.TopVote
 }
-getEventInfo()
+loadEventInfo()
 
-async function loadBoardGames()
-{
-    const response = await fetch('https://raw.githubusercontent.com/joelblombergiths/boardgames/main/README.md');
-    const data = await response.text();                                
+const loadBoardgames = async () => {
+    const response = await fetch('https://raw.githubusercontent.com/joelblombergiths/boardgames/main/README.md')
+    const data = await response.text()
     
     let boardGames = data.split(/\n/)
     boardGames.splice(0, 2);
@@ -45,7 +42,7 @@ async function loadBoardGames()
         gamesList.appendChild(option)
     });
 }
-loadBoardGames(); 
+loadBoardgames()
 
 attendButton.addEventListener('click', async () => {
     const data = {
