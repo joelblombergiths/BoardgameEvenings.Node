@@ -17,56 +17,64 @@
             </ul>
         </nav>
         <main>
-            <section>
-                <table id="infoTable">
+            <section id="EventInfo">
+                <table>
                     <tr>
                         <th>Name</th>
                         <th>Date</th>
-                        <th>Prefered Game</th>
+                        <th>Most Prefered Game</th>
                         <th>&nbsp;</th>
                     </tr>
                     <tr>
-                        <td><span id="eventName"></span></td>
-                        <td><span id="eventDate"></span></td>
-                        <td><span id="eventGame"></span></td>
-                        <td><span id="settings">
-                            &nbsp;
-                            <a href="" id="editIcon"><i class="fa-solid fa-pen"></i></a>                            
-                            <a href="" id="deleteIcon"><i class="fa-solid fa-trash-can"></i></a>
-                        </span></td>
+                        <td><div id="eventName"></div></td>
+                        <td><div id="eventDate"></div></td>
+                        <td><div id="eventGame"></div></td>
+                        <td>
+                            <a href="#" id="eventEditLink"><i id="eventEditIcon" class="fa-solid fa-pen"></i></a>                            
+                            <a href="#" id="eventDeleteLink"><i id="eventDeleteIcon" class="fa-solid fa-trash-can"></i></a>
+                        </td>
                     </tr>
                 </table>
             </section>
             <br>
-            <section>
+            <section id="Attend">
                 <h3>I solemnly swear that I am up to no good</h3>
-                <table id="events">
-                <thead>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Your Name</th>
+                            <th>Vote for a game</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <input type="text" name="Name" id="name">
+                            </td>
+                            <td>
+                                <select name="Games" id="game">
+                                    <option>Any</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <input type="button" class="fancyButton" value="Attend" id="attendButton">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <br>
+            <section id="Attendees">
+                <table id="attendeeTable" class="fancyTable">
                     <tr>
-                        <th>Your Name</th>
-                        <th>Vote for a game</th>
+                        <th>Name</th>
+                        <th>Prefered Game</th>
+                        <th>&nbsp;</th>
                     </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <input type="text" name="Name" id="name">
-                        </td>
-                        <td>
-                            <select name="Games" id="game">
-                                <option>Any</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <input type="button" class="fancyButton" value="Attend" id="attendButton">
-                            <span id="result"></span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+                </table>
+            </section>
         </main>
         <script src="event.js"></script>
     </body>

@@ -3,10 +3,10 @@ const eventTable = document.getElementById('events')
 const GetEvents = async () => {
     const res = await fetch('/events')
         
+    const tbody = document.createElement('tbody')
+
     if(res.status == 200)
-    {
-        const tbody = document.createElement('tbody')
-        
+    {        
         const data = await res.json()
         data.forEach(event => {
             const row = document.createElement("tr")
@@ -23,17 +23,18 @@ const GetEvents = async () => {
 
             tbody.appendChild(row)
         })
-
-        eventTable.appendChild(tbody)
     }
     else
     {
         const row = document.createElement("tr")
         const col = document.createElement("td")        
         col.colSpan = 2
-        col.innerText = 'Party poopers :('
+        col.innerText = '[Create new Event]'
+        row.onclick = () => {location.assign('newevent.html')}
         row.appendChild(col)
-        eventTable.appendChild(row)
+        tbody.appendChild(row)
     }
+
+    eventTable.appendChild(tbody)
 }
 GetEvents()
