@@ -89,17 +89,12 @@ app.post('/event', async (req, res) => {
     // #swagger.tags = ['Events']
     try
     {
-        const {id, name, date} = req.body
-
-        const found = await db.get(queries.checkIfExistsSql, id)
-        if(!found)
-        {
-            await db.run(queries.createEventSql, date, name)
-            console.log(`Event ${name} on ${date} created `)
-            return res.send()
-        }
-
-        res.status(400).send(`Event with ID ${id} already exists`)
+        const {name, date} = req.body
+        
+        await db.run(queries.createEventSql, date, name)
+        console.log(`Event ${name} on ${date} created `)
+        
+        res.send()
     }
     catch(err) 
     {
@@ -160,6 +155,12 @@ app.post('/event/:eventid/attend', async (req, res) => {
         const eventId = req.params.eventid
         const {name, vote} = req.body
 
+        const found = await db.get(queries.checkIfExistsSql, eventId)
+        if(!found)
+        {
+            return res.status(404).send()
+        }
+
         const attendeeResult = await db.run(queries.addAttendeeSql, eventId, name)
         const attendeeId = attendeeResult.lastID
         
@@ -175,17 +176,72 @@ app.post('/event/:eventid/attend', async (req, res) => {
     }
 })
 
-app.delete('/event/:eventid/attend/:attendeeid', async (req, res) => {
+app.get('/event/:eventid/attendees', async (req, res) => {
+    // #swagger.tags = ['Attendees']
+    try {
+        const eventid = req.params.eventid
+
+        const found = await db.get(queries.checkIfExistsSql, eventid)
+        if(!found)
+        {
+            return res.status(404).send()
+        }
+        
+        const result = await db.all(queries.allAttendeesSql, eventid)        
+        if(result.length)
+        {            
+            return res.json(result)
+        }
+
+        res.status(204).send()
+
+    } catch (err) {
+        console.log(err.message)
+        res.status(400).send(err.message)    
+    }
+})
+
+app.put('/event/:eventid/attendee/:attendeeid', async (req, res) => {
+    // #swagger.tags = ['Attendees']    
+    try
+    {
+        const {eventid, attendeeid} = req.params
+        const {name, vote} = req.body
+
+        const found = await db.get(queries.checkIfExistsSql, eventid)
+        if(!found)
+        {
+            return res.status(404).send()
+        }
+
+        db.run(queries.updateAttendeeSql, name, attendeeid, eventid)
+        await db.run(queries.updateVoteSql, vote, attendeeid, eventid)
+
+        res.send()
+    }
+    catch(err)
+    {        
+        console.log(err.message)
+        res.status(400).send(err.message)
+    }
+})
+
+app.delete('/event/:eventid/attendee/:attendeeid', async (req, res) => {
     // #swagger.tags = ['Attendees']
     try
     {
-        const eventId = req.params.eventid
-        const attendeeId = req.params.attendeeid
+        const {eventid, attendeeid} = req.params
         
-        db.run(queries.deleteAttendeeSql, eventId, attendeeId)
-        await db.run(queries.deleteVoteSql, eventId, attendeeId)
+        const found = await db.get(queries.checkIfExistsSql, eventid)
+        if(!found)
+        {
+            return res.status(404).send()
+        }
 
-        console.log(`Removed Attendee ID ${attendeeId} from event ${eventId}`)
+        db.run(queries.deleteAttendeeSql, eventid, attendeeid)
+        await db.run(queries.deleteVoteSql, eventid, attendeeid)
+
+        console.log(`Removed Attendee ID ${attendeeid} from event ${eventid}`)
         res.send()
     }
     catch(err)

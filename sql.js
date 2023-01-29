@@ -11,5 +11,8 @@ export const queries = {
     addAttendeeSql : 'INSERT INTO Attendees(EventId,Name) VALUES(?,?)',
     addVoteSql : 'INSERT INTO GameVotes(ID,EventID,AttendeeID,Vote) VALUES((SELECT IFNULL(MAX(ID) + 1, 1) FROM GameVotes ORDER BY ID DESC),?,?,?)',
     deleteAttendeeSql : 'DELETE FROM Attendees WHERE EventId = ? AND ID = ?',
-    deleteVoteSql : 'DELETE FROM GameVotes WHERE EventId = ? AND AttendeeID = ?'
+    deleteVoteSql : 'DELETE FROM GameVotes WHERE EventId = ? AND AttendeeID = ?',
+    allAttendeesSql : 'SELECT a.ID, a.Name, gv.Vote FROM GameVotes gv INNER JOIN Attendees a ON a.ID = gv.AttendeeID WHERE gv.EventID = ?',
+    updateAttendeeSql: 'UPDATE Attendees SET Name = ? WHERE ID = ? AND EventID = ?',
+    updateVoteSql : 'UPDATE GameVotes SET Vote = ? WHERE AttendeeID = ? AND EventID = ?'
 }

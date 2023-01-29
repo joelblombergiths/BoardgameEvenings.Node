@@ -18,14 +18,14 @@
         </nav>
         <main>
             <h3>Not everyone can get it right the first time</h3>
-            <table id="events">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Date and time</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <section>
+                <table id="events">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Date and time</th>
+                        </tr>
+                    </thead>
                     <tr>
                         <td>
                             <input type="text" name="Name" id="name">
@@ -40,8 +40,18 @@
                             <span id="result"></span>
                         </td>
                     </tr>
-                </tbody>
-            </table>
+                </table>
+            </section>
+            <br>
+            <section>
+                <table id="attendeeTable" class="fancyTable">
+                    <tr>
+                        <th>Name</th>
+                        <th>Prefered Game</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </table>
+            </section>
         </main>
         <script src="editevent.js"></script>
     </body>

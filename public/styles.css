@@ -44,6 +44,10 @@ a:hover {
     cursor: pointer;
 }
 
+i {
+    padding: 0 5px;
+}
+
 .fancyTable tbody tr:nth-of-type(even) {
     background-color: #f3f3f3;
 }
@@ -52,12 +56,11 @@ a:hover {
     border-bottom: 2px solid #693250;
 }
 
-.fancyTable tbody tr:hover {
+.hover tbody tr:hover {
     background-color: darkgray;
     color: white;
     font-weight: bold;
 }
-
 
 .fancyButton {
     appearance: none;
