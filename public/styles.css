@@ -1,9 +1,17 @@
+body {
+    /* background-color: #5a7287; */
+    background-color: #6f8496;
+    color: white;
+}
+
 main {
     padding-top: 50px;    
     font-family: 'Source Code Pro', monospace;
 }
 
 table {
+    background-color: white;
+    color: black;
     border-collapse: collapse;
     margin: 25px 25px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
@@ -58,7 +66,7 @@ i {
 
 .hover tbody tr:hover {
     background-color: darkgray;
-    color: white;
+    color: #693250;
     font-weight: bold;
 }
 
