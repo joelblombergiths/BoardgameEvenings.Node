@@ -1,5 +1,4 @@
 const PORT = process.env.PORT || 3000
-const databasePath = './db/database.db'
 
 import express from 'express'
 const app = express()
@@ -9,36 +8,19 @@ app.use(express.json())
 
 import swaggerUi from 'swagger-ui-express'
 
-import sqlite3 from 'sqlite3'
-import {open} from 'sqlite'
+import {readFileSync} from 'fs'
 
-import {queries} from './sql.js'
+import firestore from 'firebase-admin'
+import {getFirestore, FieldValue} from 'firebase-admin/firestore'
 
-import {readFileSync, existsSync} from 'fs'
+const serviceAccount = JSON.parse(readFileSync('./firestore.json')) 
 
-const dbExists = existsSync(databasePath)
+firestore.initializeApp({
+    credential: firestore.credential.cert(serviceAccount)
+});
 
-const dbconf = {
-    filename: databasePath,
-    driver: sqlite3.Database
-}
-
-var db
-open(dbconf)
-    .then(database => {    
-        if(!dbExists)
-        {
-            (async () => {
-                console.log('Initializing DB')
-                
-                database.run(queries.initEventTablesql)
-                database.run(queries.initAttendeeTableSql)
-                await database.run(queries.initVotesTableSql)
-            })()
-        }
-        console.log(`Database connected ${database.config.filename}`)
-        db = database
-    })
+const db = getFirestore();
+const eventRef = db.collection('Events')
 
 const swaggerFile = JSON.parse(readFileSync('./swagger.json'))
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile, {explorer: false, customCss: readFileSync('./swagger.css')}));
@@ -48,11 +30,18 @@ app.get('/')
 app.get('/events', async (req, res) => {
     // #swagger.tags = ['Events']
     try
-    {
-        const result = await db.all(queries.allEventsSql)        
-        if(result.length)
-        {            
-            return res.json(result)
+    { 
+        const result = await eventRef.get()
+
+        const events = []
+        if(!result.empty)
+        {
+            result.forEach(doc => {
+                let event = doc.data()
+                event.ID = doc.id
+                events.push(event)
+            })
+            return res.json(events)
         }
 
         res.status(204).send()
@@ -70,10 +59,29 @@ app.get('/event/:id', async (req, res) => {
     {
         const eventId = req.params.id
 
-        const result = await db.get(queries.getEventDetailSql, eventId)
-        if(result)
+        const event = eventRef.doc(eventId)
+        const eventObj = await event.get()
+        if(eventObj.exists)
         {
-            return res.json(result)            
+            let eventData = eventObj.data()
+
+            const attendees = await event.collection('Attendees').get()
+            
+            if(attendees.empty)
+            {
+                eventData.TopVote = 'Any'
+            }
+            else
+            {
+                let votes = []
+                attendees.forEach(doc => {
+                    votes.push((doc.data()).Vote)
+                })
+                
+                eventData.TopVote = getTopVote(votes)                
+            }
+
+            return res.json(eventData)
         }
 
         res.status(404).send(`Event with ID ${eventId} not found`)
@@ -91,7 +99,11 @@ app.post('/event', async (req, res) => {
     {
         const {name, date} = req.body
         
-        await db.run(queries.createEventSql, date, name)
+        await eventRef.add({
+            'Name': name,
+            'Date': date
+        })
+
         console.log(`Event ${name} on ${date} created `)
         
         res.send()
@@ -110,10 +122,15 @@ app.put('/event/:id', async (req, res) => {
         const eventId = req.params.id
         const {name, date} = req.body
 
-        const found = await db.get(queries.checkIfExistsSql, eventId)
-        if(found)
+        const event = eventRef.doc(eventId)
+
+        const check = await event.get()
+        if(check.exists)
         {
-            await db.run(queries.updateEventSql, name, date, eventId)
+            await event.update({
+                Name: name,
+                Date: date
+            })
             return res.send()
         }
 
@@ -132,9 +149,13 @@ app.delete('/event/:id', async (req, res) => {
     {
         const eventId = req.params.id
 
-        const result = await db.run(queries.deleteEventsql, eventId)
-        if(result.changes > 0)
+        const event = eventRef.doc(eventId)
+        
+        const check = await event.get()
+        if(check.exists)
         {
+            await event.delete()
+            //TODO delete all attendees
             console.log(`Removed event with ID ${eventId}`)
             return res.send()            
         }
@@ -155,16 +176,18 @@ app.post('/event/:eventid/attend', async (req, res) => {
         const eventId = req.params.eventid
         const {name, vote} = req.body
 
-        const found = await db.get(queries.checkIfExistsSql, eventId)
-        if(!found)
+        const event = eventRef.doc(eventId)
+        
+        const check = await event.get()
+        if(!check.exists)
         {
             return res.status(404).send()
         }
 
-        const attendeeResult = await db.run(queries.addAttendeeSql, eventId, name)
-        const attendeeId = attendeeResult.lastID
-        
-        await db.run(queries.addVoteSql, eventId, attendeeId, vote)
+        await event.collection('Attendees').add({
+            Name: name,
+            Vote: vote
+        })
 
         console.log(`${name} will attend event with ID ${eventId} and voted for ${vote}`)
         res.send()
@@ -179,18 +202,27 @@ app.post('/event/:eventid/attend', async (req, res) => {
 app.get('/event/:eventid/attendees', async (req, res) => {
     // #swagger.tags = ['Attendees']
     try {
-        const eventid = req.params.eventid
+        const eventId = req.params.eventid
 
-        const found = await db.get(queries.checkIfExistsSql, eventid)
-        if(!found)
+        const event = eventRef.doc(eventId)
+        
+        const check = await event.get()
+        if(!check.exists)
         {
             return res.status(404).send()
         }
         
-        const result = await db.all(queries.allAttendeesSql, eventid)        
-        if(result.length)
-        {            
-            return res.json(result)
+        const result = await event.collection('Attendees').get()
+        
+        const attendees = []
+        if(!result.empty)
+        {
+            result.forEach(doc => {
+                let attendee = doc.data()
+                attendee.ID = doc.id
+                attendees.push(attendee)
+            })
+            return res.json(attendees)
         }
 
         res.status(204).send()
@@ -208,14 +240,25 @@ app.put('/event/:eventid/attendee/:attendeeid', async (req, res) => {
         const {eventid, attendeeid} = req.params
         const {name, vote} = req.body
 
-        const found = await db.get(queries.checkIfExistsSql, eventid)
-        if(!found)
+        const event = eventRef.doc(eventid)
+        
+        const check = await event.get()
+        if(!check.exists)
         {
-            return res.status(404).send()
+            return res.status(404).send(`Event ${eventid} does not exist`)
         }
 
-        db.run(queries.updateAttendeeSql, name, attendeeid, eventid)
-        await db.run(queries.updateVoteSql, vote, attendeeid, eventid)
+        const attendee = event.collection('Attendees').doc(attendeeid)
+        const attendeeCheck = await attendee.get()
+        if(!attendeeCheck.exists)
+        {
+            return res.status(404).send(`Attendee ${attendeeid} does not exist`)
+        }
+        
+        await attendee.update({
+            Name: name,
+            Vote: vote
+        })
 
         res.send()
     }
@@ -232,15 +275,23 @@ app.delete('/event/:eventid/attendee/:attendeeid', async (req, res) => {
     {
         const {eventid, attendeeid} = req.params
         
-        const found = await db.get(queries.checkIfExistsSql, eventid)
-        if(!found)
+        const event = eventRef.doc(eventid)
+        
+        const eventCheck = await event.get()
+        if(!eventCheck.exists)
         {
-            return res.status(404).send()
+            return res.status(404).send(`Event ${eventid} does not exist`)
         }
 
-        db.run(queries.deleteAttendeeSql, eventid, attendeeid)
-        await db.run(queries.deleteVoteSql, eventid, attendeeid)
-
+        const attendee = event.collection('Attendees').doc(attendeeid)
+        
+        const attendeeCheck = await attendee.get()
+        if(!attendeeCheck.exists)
+        {
+            return res.status(404).send(`Attendee ${attendeeid} does not exist`)
+        }
+        
+        await attendee.delete()
         console.log(`Removed Attendee ID ${attendeeid} from event ${eventid}`)
         res.send()
     }
@@ -254,3 +305,17 @@ app.delete('/event/:eventid/attendee/:attendeeid', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Listening to port ${PORT}`)
 })
+
+
+function getTopVote(arr)
+{
+    const topVotes = arr.reduce((allVotes, vote) => {
+        const currCount = allVotes[vote] ?? 0;
+        return {
+            ...allVotes,
+            [vote]: currCount + 1,
+        };
+    }, {});
+    
+    return Object.keys(topVotes).reduce((a, b) => topVotes[a] > topVotes[b] ? a : b)
+}
