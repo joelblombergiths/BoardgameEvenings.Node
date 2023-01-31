@@ -33,9 +33,9 @@ app.get('/events', async (req, res) => {
     { 
         const result = await eventRef.get()
 
-        const events = []
         if(!result.empty)
         {
+            const events = []
             result.forEach(doc => {
                 let event = doc.data()
                 event.ID = doc.id
@@ -72,13 +72,8 @@ app.get('/event/:id', async (req, res) => {
                 eventData.TopVote = 'Any'
             }
             else
-            {
-                let votes = []
-                attendees.forEach(doc => {
-                    votes.push((doc.data()).Vote)
-                })
-                
-                eventData.TopVote = getTopVote(votes)                
+            {                
+                eventData.TopVote = getTopVote(attendees)                
             }
 
             return res.json(eventData)
@@ -306,10 +301,14 @@ app.listen(PORT, () => {
     console.log(`Listening to port ${PORT}`)
 })
 
-
-function getTopVote(arr)
+function getTopVote(attendees)
 {
-    const topVotes = arr.reduce((allVotes, vote) => {
+    let votes = []
+    attendees.forEach(doc => {
+        votes.push((doc.data()).Vote)
+    })
+
+    const topVotes = votes.reduce((allVotes, vote) => {
         const currCount = allVotes[vote] ?? 0;
         return {
             ...allVotes,
