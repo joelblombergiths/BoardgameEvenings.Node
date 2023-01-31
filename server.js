@@ -309,12 +309,8 @@ function getTopVote(attendees)
     })
 
     const topVotes = votes.reduce((allVotes, vote) => {
-        const currCount = allVotes[vote] ?? 0;
-        return {
-            ...allVotes,
-            [vote]: currCount + 1,
-        };
-    }, {});
-    
-    return Object.keys(topVotes).reduce((a, b) => topVotes[a] > topVotes[b] ? a : b)
+        return {...allVotes, [vote]: (allVotes[vote] ?? 0) + 1 }
+    }, {})
+        
+    return Object.keys(topVotes).reduce((prev, current) => topVotes[prev] > topVotes[current] ? prev : current)
 }
